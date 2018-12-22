@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Tech Articles - {{ .Date }}</title>
+</head>
+<body>
+  <div class="_3z9ix0Ue99trWXkNz-xubm _3T_0izEBoQ4deL5A42nKOm allowTextSelection">
+    <div>
+      <div class="rps_53fc">
+        <div style="min-width: 100%; margin: 0px; padding: 0px; color: rgb(68, 68, 68); font-family: 'Helvetica Neue', Helvetica, sans-serif, serif, EmojiFont; width: 100%;">
+          <div style="margin:0">
+            <div class="COcXnBR-GfIojIrmIMpa3" has-hovered="true">
+              <table class="x_body" align="center" border="0" cellpadding="0" cellspacing="0" style="font-family: 'Helvetica Neue', Helvetica, sans-serif; transform: scale(0.850453, 0.850453); transform-origin: left top 0px;"
+                min-scale="0.850453172205438">
+                <tbody>
+                  <tr>
+                    <td class="x_container" align="center" valign="top" style="font-family:'Helvetica Neue',Helvetica,sans-serif; border:1px solid #DCDCDC; border-top:5px solid #000000">
+                      <table class="x_row" cellpadding="0" cellspacing="0" width="660" style="border-collapse:collapse; width:660px; border:none">
+                        <tbody>
+                          <tr>
+                            <td class="x_row-header-02" bgcolor="#fdfdfd" style="font-family:'Helvetica Neue',Helvetica,sans-serif; border-top:1px solid #e6e6e6; border-bottom:1px solid #e6e6e6; background-color:#fdfdfd">
+                              <table class="x_row-container" cellspacing="0" cellpadding="0" align="left" width="100%"
+                                style="width:100%">
+                                <tbody>
+                                  <tr>
+                                    <td class="x_wrapper" align="left" style="font-family:'Helvetica Neue',Helvetica,sans-serif; padding:6px 12px 1px; padding-left:24px; padding-right:24px">
+                                      <table class="x_wrapper-container-01" align="left" width="50%" style="width:50%">
+                                        <tbody>
+                                          <tr>
+                                            <td style="font-family:'Helvetica Neue',Helvetica,sans-serif">
+                                              <!-- <img
+                                                data-imagetype="External" src=""
+                                                class="x_wrapper-image" alt="Daily Tech Articles" width="30" style="width:30px; vertical-align:bottom; max-width:100%"> -->
+                                              <span
+                                                class="x_wrapper-header-01" style="line-height:27px; font-size:23px; font-weight:bold; color:#444444">Daily Articles</span> </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                      <table class="x_wrapper-container-02" align="right" width="50%" style="text-align:right; width:50%">
+                                        <tbody>
+                                          <tr>
+                                            <td style="font-family:'Helvetica Neue',Helvetica,sans-serif"><span class="x_wrapper-header-02"
+                                                style="font-size:16px; line-height:36px; font-weight:normal; color:#444444">{{ .Date }}</span></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="x_rust-container" align="left" style="font-family:'Helvetica Neue',Helvetica,sans-serif; padding:16px 12px 12px 12px">
+                              <table class="x_rust-row" align="left" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse; width:100%">
+                                <tbody>
+                                  <tr>
+                                    <td style="font-family:'Helvetica Neue',Helvetica,sans-serif">
+                                      <!-- <p style="font-family:'Helvetica Neue',Helvetica,sans-serif; color:#444444; line-height:24px; margin:0px; margin-bottom:15px; font-size:16px">Hello and welcome.</p> -->
+                                      <h1 id="x_updates-from-rust-community" style="font-family:'Helvetica Neue',Helvetica,sans-serif; color:#444444; font-weight:bold; font-size:24px; margin:16px 0px">GoCN 每日新闻 ({{.Date}})</h1>
+                                      <!-- <h2 id="x_news-blog-posts" style="font-family:'Helvetica Neue',Helvetica,sans-serif; font-size:19px; color:#444444; margin:10px 0px; font-weight:bold">
+                                        News &amp; Blog Posts</h2> -->
+                                      <ul style="margin-top:0px">
+                                        {{range $i, $v := .List}}
+                                        <li style="font-size:16px;line-height: 28px;"><a href="{{ $v.link }}" target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="text-decoration:none; color:#2a7ae2">{{ $v.title }}</a>.
+                                          {{end}}
+                                        </li>
+                                      </ul>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr class="x_footer" bgcolor="#fdfdfd" style="border-top:1px solid #e6e6e6; background-color:#fdfdfd">
+                            <td class="x_wrapper x_last" style="font-family:'Helvetica Neue',Helvetica,sans-serif; padding:6px 12px 1px; padding-left:24px; padding-right:24px">
+                              <table style="width:100%">
+                                <tbody>
+                                  <tr>
+                                    <td class="x_center" align="center" style="font-family:'Helvetica Neue',Helvetica,sans-serif; text-align:center">
+                                      <small>
+                                        <a href="https://weibo.com/webbought/profile" target="_blank" rel="noopener noreferrer"
+                                          data-auth="NotApplicable" style="text-decoration:none; color:#2a7ae2">
+                                          @t2krew</a> | <a href="javascript:;"
+                                          target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="text-decoration:none; color:#2a7ae2">
+                                          Unsubscribe</a> | <a href="javascript:;"
+                                          target="_blank" rel="noopener noreferrer" data-auth="NotApplicable" style="text-decoration:none; color:#2a7ae2">
+                                          Change email address</a></small></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

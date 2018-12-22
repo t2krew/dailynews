@@ -2,14 +2,27 @@ package main
 
 import (
 	"fmt"
-	"github.com/t2krew/daily/mail"
 	"log"
+
+	"github.com/t2krew/daily/mail"
+	"github.com/t2krew/daily/spider"
+	"github.com/t2krew/daily/util"
 )
 
 func main() {
 	mailConf, err := Configer("email")
 	if err != nil {
 		panic(err)
+	}
+
+	var list []map[string]string
+	for _, s := range spider.Spiders {
+		ret, err := s.Handler()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(ret)
+		list = append(list, ret...)
 	}
 
 	var (
@@ -24,14 +37,20 @@ func main() {
 
 	mailbox := mail.NewMail(email, password, nickname, host, port)
 
-	to := []string{"648367227@qq.com"}
+	to := []string{"xxx@qq.com"}
+
+	date := util.Today().Format("2006-01-02")
 
 	data := mail.Content{
-		Subject: "测试邮件",
-		Message: "这是一封测试邮件，请查收后删除",
+		Subject: fmt.Sprintf("Daily Articles (%s)", date),
+		Data: &mail.Data{
+			Date: date,
+			List: list,
+		},
+		Mime: "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n",
 	}
 
-	err = mailbox.Send(to, data)
+	err = mailbox.Send("template/daily.html", to, data)
 	if err != nil {
 		log.Panicln(err)
 	}
