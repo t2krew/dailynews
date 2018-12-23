@@ -1,4 +1,15 @@
 {
   "name": "daily news",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "mail": {
+    "email": "xxx@qq.com",
+    "password": "xxx",
+    "host": "smtp.qq.com",
+    "port": 587,
+    "nickname": "每日推荐",
+    "receiver": ["xxx@qq.com"]
+  },
+  "dingding": {
+    "robot": "https://oapi.dingtalk.com/robot/send?access_token=xxx"
+  }
 }

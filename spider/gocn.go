@@ -58,7 +58,7 @@ func (g *Gocn) Handler() (ret []map[string]string, err error) {
 	var articleList []ArticleItem
 	articleCollector := colly.NewCollector()
 	articleCollector.OnHTML(".content", func(e *colly.HTMLElement) {
-		e.ForEach("li", func(i int, element *colly.HTMLElement) {
+		e.ForEach("ol li", func(i int, element *colly.HTMLElement) {
 			var item ArticleItem
 			element.DOM.Contents().Each(func(i int, selection *goquery.Selection) {
 				if i == 0 {

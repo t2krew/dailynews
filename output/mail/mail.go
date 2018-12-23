@@ -8,13 +8,15 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/t2krew/daily/output"
+	"github.com/t2krew/daily/template"
 )
 
 type EmailError string
 
 func (ee EmailError) Error() string { return string(ee) }
 
-const ErrEmptyBody = EmailError("email message is empty")
 const ErrEmptySubject = EmailError("email subject is empty")
 
 type mail struct {
@@ -37,17 +39,6 @@ func NewMail(email, password, nickname, host string, port int) *mail {
 	}
 }
 
-type Data struct {
-	Date string              `json:"date"`
-	List []map[string]string `json:"list"`
-}
-
-type Content struct {
-	Subject string `json:"subject"`
-	Data    *Data  `json:"data"`
-	Mime    string `json:"content_type"`
-}
-
 const contentType = "Content-Type: text/plain; charset=UTF-8"
 
 func (m *mail) Auth() {
@@ -55,7 +46,7 @@ func (m *mail) Auth() {
 	m.auth = &auth
 }
 
-func (m *mail) Send(template string, receiver []string, content Content) (err error) {
+func (m *mail) Send(tplname string, receiver []string, content output.Content) (err error) {
 	if m.auth == nil {
 		m.lock.Lock()
 		defer m.lock.Unlock()
@@ -73,7 +64,7 @@ func (m *mail) Send(template string, receiver []string, content Content) (err er
 		contType = content.Mime
 	}
 
-	message, err := ParseTemplate(template, content.Data)
+	message, err := template.ParseTemplate(tplname, content.Data)
 	if err != nil {
 		log.Println("parse error ", err)
 		return err
@@ -86,8 +77,11 @@ func (m *mail) Send(template string, receiver []string, content Content) (err er
 		msgBody = []byte(body)
 		addr    = net.JoinHostPort(m.smtpHost, strconv.Itoa(m.smtpPort))
 	)
+	err = smtp.SendMail(addr, *m.auth, m.email, receiver, msgBody)
+	if err != nil {
+		return
+	}
 
-	//fmt.Println(addr, *m.auth, m.email, receiver, string(msgBody))
-
-	return smtp.SendMail(addr, *m.auth, m.email, receiver, msgBody)
+	log.Printf("[task][邮件] done\n")
+	return
 }
