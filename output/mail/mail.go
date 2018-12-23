@@ -63,7 +63,7 @@ func (m *mail) Send(tplname string, receiver []string, content output.Content) (
 		contType = content.Mime
 	}
 
-	message, err := ParseTemplate(tplname, content.Data)
+	message, err := ParseTemplate(fmt.Sprintf("templates/mail/%s.html", tplname), content.Data)
 	if err != nil {
 		log.Println("parse error ", err)
 		return err

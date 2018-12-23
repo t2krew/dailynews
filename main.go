@@ -28,8 +28,8 @@ func main() {
 		mailbox = mail.NewMail(email, password, nickname, host, port) // 邮件
 	)
 
-	output.Add(dd)
-	output.Add(mailbox)
+	output.Add(dd)      // 钉钉发送注册
+	output.Add(mailbox) // 邮件发送注册
 
 	var list []map[string]string
 	for _, s := range spider.Spiders {
@@ -40,20 +40,19 @@ func main() {
 		list = append(list, ret...)
 	}
 
-	var (
-		date = util.Today().Format("2006-01-02")
-		data = output.Content{
-			Subject: fmt.Sprintf("Daily Articles (%s)", date),
-			Data: &output.Data{
-				Date: date,
-				List: list,
-			},
-			Mime: "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n",
-		}
-	)
+	date := util.Today().Format("2006-01-02")
+	data := output.Content{
+		Subject: fmt.Sprintf("Daily Articles (%s)", date),
+		Data: &output.Data{
+			Date: date,
+			List: list,
+		},
+		Mime: "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n",
+	}
 
+	tplName := "daily" // 模板文件名
 	for _, sender := range output.Outputers {
-		err = sender.Send("template/daily.html", receiver, data)
+		err = sender.Send(tplName, receiver, data)
 		if err != nil {
 			fmt.Println(err)
 			continue
