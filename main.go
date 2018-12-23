@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/t2krew/daily/output"
-	"github.com/t2krew/daily/output/dingding"
+	"github.com/t2krew/daily/output/dtalk"
 	"github.com/t2krew/daily/output/mail"
 	"github.com/t2krew/daily/spider"
 	"github.com/t2krew/daily/util"
@@ -24,25 +26,26 @@ func main() {
 		ddrobot  = conf.GetString("dingding.robot")
 		receiver = conf.GetStringSlice("mail.receiver")
 
-		dd      = dingding.New(ddrobot)                               // 钉钉
-		mailbox = mail.NewMail(email, password, nickname, host, port) // 邮件
+		dd      = dtalk.New(ddrobot)                              // 钉钉
+		mailbox = mail.New(email, password, nickname, host, port) // 邮件
 	)
 
-	output.Add(dd)      // 钉钉发送注册
-	output.Add(mailbox) // 邮件发送注册
+	output.AddAdapter(dd)      // 钉钉发送实现
+	output.AddAdapter(mailbox) // 邮件发送实现
 
 	var list []map[string]string
 	for _, s := range spider.Spiders {
 		ret, err := s.Handler()
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
+			continue
 		}
 		list = append(list, ret...)
 	}
 
 	date := util.Today().Format("2006-01-02")
 	data := output.Content{
-		Subject: fmt.Sprintf("Daily Articles (%s)", date),
+		Subject: fmt.Sprintf("每日推荐文章 (%s)", date),
 		Data: &output.Data{
 			Date: date,
 			List: list,

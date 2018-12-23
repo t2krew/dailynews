@@ -10,7 +10,7 @@ func init() {
 	Outputers = []Outputer{}
 }
 
-func Add(o Outputer) {
+func AddAdapter(o Outputer) {
 	Outputers = append(Outputers, o)
 }
 

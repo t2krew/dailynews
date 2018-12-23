@@ -1,4 +1,4 @@
-package dingding
+package dtalk
 
 import (
 	"encoding/json"

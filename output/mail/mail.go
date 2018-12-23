@@ -28,7 +28,7 @@ type mail struct {
 	lock     sync.Mutex
 }
 
-func NewMail(email, password, nickname, host string, port int) *mail {
+func New(email, password, nickname, host string, port int) *mail {
 	return &mail{
 		smtpHost: host,
 		smtpPort: port,
