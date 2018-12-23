@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/t2krew/daily/output"
-	"github.com/t2krew/daily/template"
 )
 
 type EmailError string
@@ -64,7 +63,7 @@ func (m *mail) Send(tplname string, receiver []string, content output.Content) (
 		contType = content.Mime
 	}
 
-	message, err := template.ParseTemplate(tplname, content.Data)
+	message, err := ParseTemplate(tplname, content.Data)
 	if err != nil {
 		log.Println("parse error ", err)
 		return err
