@@ -31,12 +31,13 @@ func New(root string) *Gocn {
 	return &Gocn{root: root}
 }
 
-func (g *Gocn) Handler() (ret []map[string]string, err error) {
+func (g *Gocn) Handler() (ret *Data, err error) {
 	dateReg, err := regexp.Compile("\\((\\d{4}-\\d{1,2}-\\d{1,2})\\)$")
 	if err != nil {
 		return
 	}
 
+	var date string
 	var dailyList []DailyItem
 	dailyCollector := colly.NewCollector()
 	dailyCollector.OnHTML("div.aw-item", func(e *colly.HTMLElement) {
@@ -45,7 +46,8 @@ func (g *Gocn) Handler() (ret []map[string]string, err error) {
 			if len(match) == 0 {
 				return
 			}
-			item := DailyItem{match[1], element.Attr("href")}
+			date = match[1]
+			item := DailyItem{date, element.Attr("href")}
 			dailyList = append(dailyList, item)
 		})
 	})
@@ -84,6 +86,15 @@ func (g *Gocn) Handler() (ret []map[string]string, err error) {
 		return
 	}
 
-	err = json.Unmarshal(b, &ret)
-	return
+	var m []map[string]string
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return
+	}
+
+	return &Data{
+		List: m,
+		Date: date,
+		Url:  dailyList[0].Link,
+	}, nil
 }

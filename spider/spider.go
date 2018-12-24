@@ -3,7 +3,7 @@ package spider
 import "sync"
 
 type Spider interface {
-	Handler() ([]map[string]string, error)
+	Handler() (*Data, error)
 }
 
 var mu sync.Mutex
@@ -19,4 +19,10 @@ func register(name string, spider Spider) {
 			Spiders[name] = spider
 		}
 	}
+}
+
+type Data struct {
+	Date string `json:"date"`
+	Url  string `json:"url"`
+	List []map[string]string
 }

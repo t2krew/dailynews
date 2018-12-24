@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/md5"
+	"fmt"
 	"net/url"
 	"time"
 )
@@ -40,4 +42,10 @@ func QueryStringToMap(query string) (ret map[string]string, err error) {
 	}
 
 	return ret, nil
+}
+
+func Md5(str string) string {
+	strByte := []byte(str)
+	hash := fmt.Sprintf("%x", md5.Sum(strByte))
+	return hash
 }

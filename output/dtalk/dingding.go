@@ -10,10 +10,10 @@ import (
 )
 
 type dingding struct {
-	robot string
+	robot []string
 }
 
-func New(robot string) *dingding {
+func New(robot []string) *dingding {
 	return &dingding{robot: robot}
 }
 
@@ -23,7 +23,7 @@ func init() {
 
 var httpClient *util.Client
 
-func (d *dingding) Robot() string {
+func (d *dingding) Robot() []string {
 	return d.robot
 }
 
@@ -41,13 +41,16 @@ func (d *dingding) Send(tplname string, receiver []string, content output.Conten
 		return
 	}
 
-	ret, err := httpClient.Post(d.Robot(), b, 5*time.Second, map[string]string{
-		"Content-Type": "application/json",
-	})
-	if err != nil {
-		return
+	for idx, url := range d.Robot() {
+		ret, err := httpClient.Post(url, b, 5*time.Second, map[string]string{
+			"Content-Type": "application/json",
+		})
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		log.Printf("[task][钉钉][%d] done, ret: %s\n", idx+1, string(ret))
 	}
-	log.Printf("[task][钉钉] done, ret: %s\n", string(ret))
 	return
 
 }
