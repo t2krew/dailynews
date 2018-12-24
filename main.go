@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/t2krew/daily/output"
-	"github.com/t2krew/daily/output/dtalk"
-	"github.com/t2krew/daily/output/mail"
-	"github.com/t2krew/daily/spider"
-	"github.com/t2krew/daily/util"
+	"github.com/t2krew/dailynews/output"
+	"github.com/t2krew/dailynews/output/dtalk"
+	"github.com/t2krew/dailynews/output/mail"
+	"github.com/t2krew/dailynews/spider"
+	"github.com/t2krew/dailynews/util"
 )
 
 func main() {

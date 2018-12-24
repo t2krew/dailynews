@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/t2krew/daily/output"
+	"github.com/t2krew/dailynews/output"
 )
 
 type EmailError string

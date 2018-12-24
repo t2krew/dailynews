@@ -3,8 +3,8 @@ package dtalk
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/t2krew/daily/output"
-	"github.com/t2krew/daily/util"
+	"github.com/t2krew/dailynews/output"
+	"github.com/t2krew/dailynews/util"
 	"log"
 	"time"
 )
