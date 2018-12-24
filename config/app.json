@@ -1,6 +1,7 @@
 {
   "name": "daily news",
   "version": "1.0.0",
+  "interval": 30,
   "mail": {
     "email": "xxx@qq.com",
     "password": "xxx",
@@ -10,6 +11,13 @@
     "receiver": ["xxx@qq.com"]
   },
   "dingding": {
-    "robot": "https://oapi.dingtalk.com/robot/send?access_token=xxx"
+    "robot": ["https://oapi.dingtalk.com/robot/send?access_token=xxx"]
+  },
+  "mongo": {
+    "username": "admin",
+    "password": "xxx,",
+    "host": "127.0.0.1",
+    "port": 29001,
+    "database": "test"
   }
 }
