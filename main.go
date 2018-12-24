@@ -30,8 +30,6 @@ func main() {
 		mailbox = mail.New(email, password, nickname, host, port) // 邮件
 	)
 
-	fmt.Println(email, password, nickname, host, port)
-
 	output.AddAdapter(dd)      // 钉钉发送实现
 	output.AddAdapter(mailbox) // 邮件发送实现
 
@@ -47,7 +45,7 @@ func main() {
 
 	date := util.Today().Format("2006-01-02")
 	data := output.Content{
-		Subject: fmt.Sprintf("每日推荐 (%s)", date),
+		Subject: fmt.Sprintf("今日推荐 (%s)", date),
 		Data: &output.Data{
 			Date: date,
 			List: list,

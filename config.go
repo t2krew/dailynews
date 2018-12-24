@@ -36,8 +36,6 @@ func init() {
 		configPath = fmt.Sprintf("./%s", configPath)
 	}
 
-	fmt.Println(configPath)
-
 	viper.SetDefault("configPath", configPath)
 	viper.SetDefault("version", "1.0.0")
 

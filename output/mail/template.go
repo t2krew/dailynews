@@ -9,7 +9,6 @@ import (
 
 func ParseTemplate(name string, data interface{}) (content string, err error) {
 	tplpath := fmt.Sprintf("%s/%s", viper.Get("apppath"), name)
-	fmt.Println(tplpath)
 	tpl, err := template.ParseFiles(tplpath)
 	if err != nil {
 		return

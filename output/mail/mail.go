@@ -57,7 +57,7 @@ func (m *mail) Send(tplname string, receiver []string, content output.Content) (
 	}
 
 	email := gomail.NewMessage()
-	email.SetHeader("From", m.email)
+	email.SetHeader("From", m.email, m.nickname)
 	email.SetHeader("To", receiver...)
 	email.SetHeader("Subject", content.Subject)
 	email.SetBody(contType, message)
