@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"os"
 	"strings"
 	"sync"
 )
@@ -12,13 +11,9 @@ var lock sync.Mutex
 var viperLists map[string]*viper.Viper
 
 func init() {
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
 	viper.SetEnvPrefix("ENV")
 	_ = viper.BindEnv("app")
+	_ = viper.BindEnv("apppath")
 
 	suffix := ""
 	env := viper.GetString("app")
@@ -27,7 +22,23 @@ func init() {
 		suffix = "-" + env
 	}
 
-	viper.SetDefault("configPath", fmt.Sprintf("%s/config%s", wd, suffix))
+	configPath := fmt.Sprintf("config%s", suffix)
+
+	apppath := viper.GetString("apppath")
+	apppath = strings.TrimSpace(apppath)
+	if len(apppath) > 0 {
+		if string(apppath[len(apppath)-1:]) == "/" {
+			apppath = apppath[:len(apppath)-1]
+			viper.Set("apppath", apppath)
+		}
+		configPath = fmt.Sprintf("%s/%s", apppath, configPath)
+	} else {
+		configPath = fmt.Sprintf("./%s", configPath)
+	}
+
+	fmt.Println(configPath)
+
+	viper.SetDefault("configPath", configPath)
 	viper.SetDefault("version", "1.0.0")
 
 	viperLists = make(map[string]*viper.Viper)
