@@ -1,4 +1,4 @@
-module github.com/t2krew/daily
+module github.com/t2krew/dailynews
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.0
