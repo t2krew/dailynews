@@ -37,7 +37,6 @@ func (g *Gocn) Handler() (ret *Data, err error) {
 		return
 	}
 
-	var date string
 	var dailyList []DailyItem
 	dailyCollector := colly.NewCollector()
 	dailyCollector.OnHTML("div.aw-item", func(e *colly.HTMLElement) {
@@ -46,7 +45,7 @@ func (g *Gocn) Handler() (ret *Data, err error) {
 			if len(match) == 0 {
 				return
 			}
-			date = match[1]
+			date := match[1]
 			item := DailyItem{date, element.Attr("href")}
 			dailyList = append(dailyList, item)
 		})
@@ -94,7 +93,7 @@ func (g *Gocn) Handler() (ret *Data, err error) {
 
 	return &Data{
 		List: m,
-		Date: date,
+		Date: dailyList[0].Date,
 		Url:  dailyList[0].Link,
 	}, nil
 }
