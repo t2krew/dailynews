@@ -49,6 +49,9 @@ func (m *mail) Name() string {
 }
 
 func (m *mail) Send(tplname string, receiver []string, content output.Content) (err error) {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
 	if content.Subject == "" {
 		return ErrEmptySubject
 	}

@@ -35,11 +35,12 @@ func main() {
 		port     = conf.GetInt("mail.port")
 		nickname = conf.GetString("mail.nickname")
 
-		musername = conf.GetString("mongo.username")
-		mpassword = conf.GetString("mongo.password")
-		mhost     = conf.GetString("mongo.host")
-		mport     = conf.GetInt("mongo.port")
-		mdatabase = conf.GetString("mongo.database")
+		musername   = conf.GetString("mongo.username")
+		mpassword   = conf.GetString("mongo.password")
+		mhost       = conf.GetString("mongo.host")
+		mport       = conf.GetInt("mongo.port")
+		mdatabase   = conf.GetString("mongo.database")
+		mcollection = conf.GetString("mongo.collection")
 
 		interval = time.Duration(conf.GetInt("interval")) * time.Second
 	)
@@ -50,7 +51,7 @@ func main() {
 		return
 	}
 
-	col := cli.Collection("dailynews_test")
+	col := cli.Collection(mcollection)
 	_, err = col.Indexs([]mongo.IndexModel{
 		{Keys: bsonx.Doc{{"md5", bsonx.Int32(-1)}}},
 		{Keys: bsonx.Doc{{"date", bsonx.Int32(-1)}}},
