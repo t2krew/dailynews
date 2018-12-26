@@ -13,9 +13,11 @@ type EmailError string
 
 func (ee EmailError) Error() string { return string(ee) }
 
+const OutputEmail = "email"
 const ErrEmptySubject = EmailError("email subject is empty")
 
 type mail struct {
+	output.Output
 	email    string
 	password string
 	nickname string
@@ -28,7 +30,7 @@ type mail struct {
 func New(email, password, nickname, host string, port int) *mail {
 	dailer := gomail.NewDialer(host, port, email, password)
 
-	return &mail{
+	m := &mail{
 		email:    email,
 		password: password,
 		smtpHost: host,
@@ -36,18 +38,19 @@ func New(email, password, nickname, host string, port int) *mail {
 		nickname: nickname,
 		dailer:   dailer,
 	}
+	m.OutputName = OutputEmail
+	return m
 }
 
-const contentType = "Content-Type: text/plain; charset=UTF-8"
+const contentType = "text/html"
+
+func (m *mail) Name() string {
+	return m.OutputName
+}
 
 func (m *mail) Send(tplname string, receiver []string, content output.Content) (err error) {
 	if content.Subject == "" {
 		return ErrEmptySubject
-	}
-
-	contType := contentType
-	if content.Mime != "" {
-		contType = content.Mime
 	}
 
 	message, err := ParseTemplate(fmt.Sprintf("templates/mail/%s.html", tplname), content.Data)
@@ -60,7 +63,7 @@ func (m *mail) Send(tplname string, receiver []string, content output.Content) (
 	email.SetHeader("From", m.email, m.nickname)
 	email.SetHeader("To", receiver...)
 	email.SetHeader("Subject", content.Subject)
-	email.SetBody(contType, message)
+	email.SetBody(contentType, message)
 
 	// Send the email to Bob, Cora and Dan.
 	if err := m.dailer.DialAndSend(email); err != nil {

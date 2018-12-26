@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/x/bsonx"
@@ -11,12 +14,15 @@ import (
 	"github.com/t2krew/dailynews/output/mail"
 	"github.com/t2krew/dailynews/spider"
 	"github.com/t2krew/dailynews/util"
-	"log"
-	"time"
 )
 
 func main() {
 	conf, err := Configer("app")
+	if err != nil {
+		panic(err)
+	}
+
+	subConf, err := Configer("subscribe")
 	if err != nil {
 		panic(err)
 	}
@@ -27,8 +33,6 @@ func main() {
 		host     = conf.GetString("mail.host")
 		port     = conf.GetInt("mail.port")
 		nickname = conf.GetString("mail.nickname")
-		ddrobot  = conf.GetStringSlice("dingding.robot")
-		receiver = conf.GetStringSlice("mail.receiver")
 
 		musername = conf.GetString("mongo.username")
 		mpassword = conf.GetString("mongo.password")
@@ -45,7 +49,7 @@ func main() {
 		return
 	}
 
-	col := cli.Collection("dailynews")
+	col := cli.Collection("dailynews_test")
 	_, err = col.Indexs([]mongo.IndexModel{
 		{Keys: bsonx.Doc{{"md5", bsonx.Int32(-1)}}},
 		{Keys: bsonx.Doc{{"date", bsonx.Int32(-1)}}},
@@ -56,68 +60,72 @@ func main() {
 	}
 
 	var (
-		dd      = dtalk.New(ddrobot)                              // 钉钉
-		mailbox = mail.New(email, password, nickname, host, port) // 邮件
+		dingding = dtalk.New()
+		mailbox  = mail.New(email, password, nickname, host, port)
 	)
 
-	output.AddAdapter(dd)      // 钉钉发送实现
-	output.AddAdapter(mailbox) // 邮件发送实现
+	output.AddAdapter(mailbox)
+	output.AddAdapter(dingding)
 
 	for {
-		var list []*spider.Data
 		for _, s := range spider.Spiders {
+			var sub = subConf.GetStringMapStringSlice(s.Name())
+
 			ret, err := s.Handler()
 			if err != nil {
 				log.Println(err)
 				continue
 			}
-			list = append(list, ret)
-		}
 
-		date := util.Today().Format("2006-01-02")
+			hash := util.Md5(ret.Url)
+			date := util.Today().Format("2006-01-02")
 
-		hash := util.Md5(list[0].Url)
-
-		ret, err := col.FindOne(bson.M{"md5": hash})
-		if err != nil {
-			time.Sleep(interval)
-			continue
-		}
-
-		if len(ret) == 0 {
-			data := output.Content{
-				Subject: fmt.Sprintf("今日推荐 (%s)", date),
-				Data: &output.Data{
-					Date: date,
-					List: list[0].List,
-				},
-				Mime: "text/html",
+			result, err := col.FindOne(bson.M{"md5": hash})
+			if err != nil {
+				time.Sleep(interval)
+				continue
 			}
 
-			tplName := "daily" // 模板文件名
-			for _, sender := range output.Outputers {
-				err = sender.Send(tplName, receiver, data)
+			if len(result) == 0 {
+				data := output.Content{
+					Subject: fmt.Sprintf("%s 今日推荐 (%s)", ret.Title, date),
+					Data: &output.Data{
+						Date:  date,
+						List:  ret.List,
+						Title: ret.Title,
+					},
+				}
+
+				tplName := "daily"
+				for _, sender := range output.Outputers {
+					receiver, ok := sub[sender.Name()]
+					if !ok {
+						continue
+					}
+					err = sender.Send(tplName, receiver, data)
+					if err != nil {
+						fmt.Println(err)
+					}
+				}
+
+				var insertdata = map[string]interface{}{
+					"md5":     hash,
+					"date":    ret.Date,
+					"url":     ret.Url,
+					"source":  s.Name(),
+					"content": ret.List,
+				}
+
+				ret, err := col.InsertOne(insertdata)
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 					continue
 				}
-			}
 
-			var insertdata = map[string]interface{}{
-				"md5":     hash,
-				"date":    list[0].Date,
-				"url":     list[0].Url,
-				"content": list[0].List,
+				log.Printf("insert result: %v\n", ret)
+			} else {
+				log.Println("最新数据已存在")
 			}
-
-			ret, err := col.InsertOne(insertdata)
-			if err != nil {
-				log.Println(err)
-			}
-
-			log.Printf("insert result: %v\n", ret)
-		} else {
-			log.Println("最新数据已存在")
 		}
 
 		time.Sleep(interval)

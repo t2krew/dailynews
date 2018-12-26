@@ -3,6 +3,7 @@ package spider
 import "sync"
 
 type Spider interface {
+	Name() string
 	Handler() (*Data, error)
 }
 
@@ -22,7 +23,9 @@ func register(name string, spider Spider) {
 }
 
 type Data struct {
-	Date string `json:"date"`
-	Url  string `json:"url"`
-	List []map[string]string
+	Url    string              `json:"url"`
+	Date   string              `json:"date"`
+	Title  string              `json:"title"`
+	Spider string              `json:"spider"`
+	List   []map[string]string `json:"list"`
 }

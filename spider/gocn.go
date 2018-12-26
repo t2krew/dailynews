@@ -7,7 +7,10 @@ import (
 	"regexp"
 )
 
+const SpiderGocn = "gocn"
+
 type Gocn struct {
+	name string
 	root string
 }
 
@@ -22,13 +25,19 @@ type ArticleItem struct {
 }
 
 func init() {
-	gocn := New("https://gocn.vip/explore/category-14")
+	gocn := NewGocn("https://gocn.vip/explore/category-14")
 	register("gocn", gocn)
-
 }
 
-func New(root string) *Gocn {
-	return &Gocn{root: root}
+func NewGocn(root string) *Gocn {
+	return &Gocn{
+		name: SpiderGocn,
+		root: root,
+	}
+}
+
+func (g *Gocn) Name() string {
+	return g.name
 }
 
 func (g *Gocn) Handler() (ret *Data, err error) {
@@ -75,7 +84,9 @@ func (g *Gocn) Handler() (ret *Data, err error) {
 		})
 	})
 
-	err = articleCollector.Visit(dailyList[0].Link)
+	var target = dailyList[0]
+
+	err = articleCollector.Visit(target.Link)
 	if err != nil {
 		return
 	}
@@ -92,8 +103,10 @@ func (g *Gocn) Handler() (ret *Data, err error) {
 	}
 
 	return &Data{
-		List: m,
-		Date: dailyList[0].Date,
-		Url:  dailyList[0].Link,
+		List:   m,
+		Spider: g.Name(),
+		Title:  "Golang",
+		Date:   target.Date,
+		Url:    target.Link,
 	}, nil
 }

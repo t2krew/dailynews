@@ -1,0 +1,14 @@
+{
+  "gocn": {
+    "email": ["xxx@qq.com", "xxx@outlook.com"],
+    "dtalk": [
+      "https://oapi.dingtalk.com/robot/send?access_token=xxx"
+    ]
+  },
+  "sfgg": {
+    "email": ["xxx@qq.com", "xxx@outlook.com"],
+    "dtalk": [
+      "https://oapi.dingtalk.com/robot/send?access_token=xxx"
+    ]
+  }
+}

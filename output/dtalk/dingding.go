@@ -9,12 +9,16 @@ import (
 	"time"
 )
 
-type dingding struct {
-	robot []string
+type dtalk struct {
+	output.Output
 }
 
-func New(robot []string) *dingding {
-	return &dingding{robot: robot}
+const OutputDTalk = "dtalk"
+
+func New() *dtalk {
+	d := &dtalk{}
+	d.OutputName = OutputDTalk
+	return d
 }
 
 func init() {
@@ -23,11 +27,11 @@ func init() {
 
 var httpClient *util.Client
 
-func (d *dingding) Robot() []string {
-	return d.robot
+func (d *dtalk) Name() string {
+	return d.OutputName
 }
 
-func (d *dingding) Send(tplname string, receiver []string, content output.Content) (err error) {
+func (d *dtalk) Send(tplname string, receiver []string, content output.Content) (err error) {
 	initdata := map[string]interface{}{
 		"msgtype": "markdown",
 		"markdown": map[string]string{
@@ -41,7 +45,7 @@ func (d *dingding) Send(tplname string, receiver []string, content output.Conten
 		return
 	}
 
-	for idx, url := range d.Robot() {
+	for idx, url := range receiver {
 		ret, err := httpClient.Post(url, b, 5*time.Second, map[string]string{
 			"Content-Type": "application/json",
 		})
@@ -56,11 +60,9 @@ func (d *dingding) Send(tplname string, receiver []string, content output.Conten
 }
 
 func mdfill(content output.Content) (markdown string) {
-	sub := content.Subject
-	list := content.Data.List
-	markdown = fmt.Sprintf("## %s\r\n", sub)
-	for idx, item := range list {
-		markdown += fmt.Sprintf("#### %d) [%s](%s)\r\n", idx+1, item["title"], item["link"])
+	markdown = fmt.Sprintf("## %s\r\n", content.Subject)
+	for idx, item := range content.Data.List {
+		markdown += fmt.Sprintf("##### %d) [%s](%s)\r\n", idx+1, item["title"], item["link"])
 	}
 	return
 }

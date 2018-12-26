@@ -7,17 +7,13 @@
     "password": "xxx",
     "host": "smtp.qq.com",
     "port": 587,
-    "nickname": "每日推荐",
-    "receiver": ["xxx@qq.com"]
-  },
-  "dingding": {
-    "robot": ["https://oapi.dingtalk.com/robot/send?access_token=xxx"]
+    "nickname": "每日推荐"
   },
   "mongo": {
-    "username": "admin",
+    "username": "xxx",
     "password": "xxx,",
     "host": "127.0.0.1",
-    "port": 29001,
+    "port": 29007,
     "database": "test"
   }
 }
