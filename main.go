@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
@@ -68,65 +69,69 @@ func main() {
 	output.AddAdapter(dingding)
 
 	for {
+		var wg sync.WaitGroup
 		for _, s := range spider.Spiders {
-			var sub = subConf.GetStringMapStringSlice(s.Name())
+			wg.Add(1)
+			go func(s spider.Spider) {
+				defer wg.Done()
 
-			ret, err := s.Handler()
-			if err != nil {
-				log.Println(err)
-				continue
-			}
+				var sub = subConf.GetStringMapStringSlice(s.Name())
 
-			hash := util.Md5(ret.Url)
-			date := util.Today().Format("2006-01-02")
-
-			result, err := col.FindOne(bson.M{"md5": hash})
-			if err != nil {
-				time.Sleep(interval)
-				continue
-			}
-
-			if len(result) == 0 {
-				data := output.Content{
-					Subject: fmt.Sprintf("%s 今日推荐 (%s)", ret.Title, date),
-					Data: &output.Data{
-						Date:  date,
-						List:  ret.List,
-						Title: ret.Title,
-					},
-				}
-
-				tplName := "daily"
-				for _, sender := range output.Outputers {
-					receiver, ok := sub[sender.Name()]
-					if !ok {
-						continue
-					}
-					err = sender.Send(tplName, receiver, data)
-					if err != nil {
-						fmt.Println(err)
-					}
-				}
-
-				var insertdata = map[string]interface{}{
-					"md5":     hash,
-					"date":    ret.Date,
-					"url":     ret.Url,
-					"source":  s.Name(),
-					"content": ret.List,
-				}
-
-				ret, err := col.InsertOne(insertdata)
+				ret, err := s.Handler()
 				if err != nil {
 					log.Println(err)
-					continue
 				}
 
-				log.Printf("insert result: %v\n", ret)
-			} else {
-				log.Println("最新数据已存在")
-			}
+				hash := util.Md5(ret.Url)
+				date := util.Today().Format("2006-01-02")
+
+				result, err := col.FindOne(bson.M{"md5": hash})
+				if err != nil {
+					log.Println(err)
+				}
+
+				if len(result) == 0 {
+					data := output.Content{
+						Subject: fmt.Sprintf("%s 今日推荐 (%s)", ret.Title, date),
+						Data: &output.Data{
+							Date:  date,
+							List:  ret.List,
+							Title: ret.Title,
+						},
+					}
+
+					tplName := "daily"
+					for _, sender := range output.Outputers {
+						receiver, ok := sub[sender.Name()]
+						if !ok {
+							continue
+						}
+						err = sender.Send(tplName, receiver, data)
+						if err != nil {
+							fmt.Println(err)
+						}
+					}
+
+					var insertdata = map[string]interface{}{
+						"md5":     hash,
+						"date":    ret.Date,
+						"url":     ret.Url,
+						"source":  s.Name(),
+						"content": ret.List,
+					}
+
+					ret, err := col.InsertOne(insertdata)
+					if err != nil {
+						log.Println(err)
+					}
+
+					log.Printf("insert result: %v\n", ret)
+				} else {
+					log.Println("最新数据已存在")
+				}
+			}(s)
 		}
+		wg.Wait()
 
 		time.Sleep(interval)
 	}
