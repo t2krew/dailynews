@@ -62,7 +62,7 @@ func (d *dtalk) Send(tplname string, receiver []string, content output.Content) 
 func mdfill(content output.Content) (markdown string) {
 	markdown = fmt.Sprintf("## %s\r\n", content.Subject)
 	for idx, item := range content.Data.List {
-		markdown += fmt.Sprintf("##### %d) [%s](%s)\r\n", idx+1, item["title"], item["link"])
+		markdown += fmt.Sprintf("#### %d) [%s](%s)\r\n", idx+1, item["title"], item["link"])
 	}
 	return
 }
