@@ -40,7 +40,7 @@ func New(host string, port int, username, password string, database ...string) (
 	}
 
 	url := fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, port)
-	fmt.Println(url)
+	//fmt.Println(url)
 	client, err := mongo.NewClient(url)
 	if err != nil {
 		return

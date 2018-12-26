@@ -128,7 +128,7 @@ func main() {
 
 					log.Printf("insert result: %v\n", ret)
 				} else {
-					log.Println("最新数据已存在")
+					log.Printf("[%s] 最新数据已爬取\n", s.Name())
 				}
 			}(s)
 		}
