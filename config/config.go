@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func init() {
 		suffix = "-" + env
 	}
 
-	configPath := fmt.Sprintf("config%s", suffix)
+	configPath := fmt.Sprintf("conf%s", suffix)
 
 	apppath := viper.GetString("apppath")
 	apppath = strings.TrimSpace(apppath)

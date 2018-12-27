@@ -9,6 +9,7 @@ import (
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/x/bsonx"
+	"github.com/t2krew/dailynews/config"
 	"github.com/t2krew/dailynews/mgo"
 	"github.com/t2krew/dailynews/output"
 	"github.com/t2krew/dailynews/output/dtalk"
@@ -18,12 +19,12 @@ import (
 )
 
 func main() {
-	conf, err := Configer("app")
+	conf, err := config.Configer("app")
 	if err != nil {
 		panic(err)
 	}
 
-	subConf, err := Configer("subscribe")
+	subConf, err := config.Configer("subscribe")
 	if err != nil {
 		panic(err)
 	}
@@ -35,26 +36,27 @@ func main() {
 		port     = conf.GetInt("mail.port")
 		nickname = conf.GetString("mail.nickname")
 
-		musername   = conf.GetString("mongo.username")
-		mpassword   = conf.GetString("mongo.password")
-		mhost       = conf.GetString("mongo.host")
-		mport       = conf.GetInt("mongo.port")
-		mdatabase   = conf.GetString("mongo.database")
-		mcollection = conf.GetString("mongo.collection")
+		dailyCollection   = conf.GetString("mongo.daily_collection")
+		articleCollection = conf.GetString("mongo.article_collection")
 
-		interval = time.Duration(conf.GetInt("interval")) * time.Second
+		interval = 1 * time.Minute // 1分钟 不推荐修改，会影响内存数据判断今日是否推送
 	)
 
-	cli, err := mgo.New(mhost, mport, musername, mpassword, mdatabase)
+	dCol := mgo.Client.Collection(dailyCollection)
+	_, err = dCol.Indexs([]mongo.IndexModel{
+		{Keys: bsonx.Doc{{"md5", bsonx.Int32(-1)}}},
+		{Keys: bsonx.Doc{{"date", bsonx.Int32(-1)}}},
+		{Keys: bsonx.Doc{{"source", bsonx.Int32(-1)}}},
+	})
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	col := cli.Collection(mcollection)
-	_, err = col.Indexs([]mongo.IndexModel{
+	aCol := mgo.Client.Collection(articleCollection)
+	_, err = aCol.Indexs([]mongo.IndexModel{
 		{Keys: bsonx.Doc{{"md5", bsonx.Int32(-1)}}},
-		{Keys: bsonx.Doc{{"date", bsonx.Int32(-1)}}},
+		{Keys: bsonx.Doc{{"title", bsonx.Int32(-1)}}},
 	})
 	if err != nil {
 		log.Println(err)
@@ -69,9 +71,35 @@ func main() {
 	output.AddAdapter(mailbox)
 	output.AddAdapter(dingding)
 
+	log.Println("[START TO RUN]")
+
 	for {
+
+		now := util.Now()
+		// 22:00 - 10:00 区间不推送
+		if now.Hour() < 10 || now.Hour() > 21 {
+			continue
+		}
+
 		var wg sync.WaitGroup
 		for _, s := range spider.Spiders {
+
+			if s.IsDone() {
+				log.Printf("读取内存，[%s] [今日已推送]\n", s.Name())
+				continue
+			}
+
+			tResult, err := dCol.FindOne(bson.M{"source": s.Name(), "date": now.Format("2006-01-02")})
+			if err != nil {
+				return
+			}
+
+			if len(tResult) > 0 {
+				log.Printf("读取数据库，[%s] [今日已推送]\n", s.Name())
+				s.SetDone() // 设置今日已推
+				continue
+			}
+
 			wg.Add(1)
 			go func(s spider.Spider) {
 				defer wg.Done()
@@ -81,14 +109,20 @@ func main() {
 				ret, err := s.Handler()
 				if err != nil {
 					log.Println(err)
+					return
+				}
+
+				if len(ret.List) == 0 {
+					return
 				}
 
 				hash := util.Md5(ret.Url)
 				date := util.Today().Format("2006-01-02")
 
-				result, err := col.FindOne(bson.M{"md5": hash})
+				result, err := dCol.FindOne(bson.M{"md5": hash})
 				if err != nil {
 					log.Println(err)
+					return
 				}
 
 				if len(result) == 0 {
@@ -110,25 +144,47 @@ func main() {
 						err = sender.Send(tplName, receiver, data)
 						if err != nil {
 							fmt.Println(err)
+							return
 						}
 					}
 
-					var insertdata = map[string]interface{}{
-						"md5":     hash,
-						"date":    ret.Date,
-						"url":     ret.Url,
-						"source":  s.Name(),
-						"content": ret.List,
-					}
+					s.SetDone() // 设置今日已推
 
-					ret, err := col.InsertOne(insertdata)
-					if err != nil {
-						log.Println(err)
-					}
+					go func() {
+						var insertdata = map[string]interface{}{
+							"md5":     hash,
+							"date":    ret.Date,
+							"url":     ret.Url,
+							"source":  s.Name(),
+							"content": ret.List,
+						}
 
-					log.Printf("insert result: %v\n", ret)
+						_, err := dCol.InsertOne(insertdata)
+						if err != nil {
+							log.Println(err)
+							return
+						}
+						log.Println("daily insert done")
+					}()
+
+					go func() {
+						for _, item := range ret.List {
+							var insertdata = map[string]interface{}{
+								"url":   item["link"],
+								"title": item["title"],
+								"md5":   util.Md5(item["link"]),
+							}
+							_, err := aCol.InsertOne(insertdata)
+							if err != nil {
+								log.Println(err)
+								return
+							}
+						}
+						log.Println("artiles insert done")
+					}()
+
 				} else {
-					log.Printf("[%s] 最新数据已爬取\n", s.Name())
+					log.Printf("读取数据库，[%s] [最新数据已爬取]\n", s.Name())
 				}
 			}(s)
 		}

@@ -1,7 +1,6 @@
 {
   "name": "daily news",
   "version": "1.0.0",
-  "interval": 30,
   "mail": {
     "email": "xxx@qq.com",
     "password": "xxx",
@@ -15,6 +14,7 @@
     "host": "127.0.0.1",
     "port": 29007,
     "database": "test",
-    "collection": "daily_test"
+    "daily_collection": "dailynews_test",
+    "article_collection": "article_test"
   }
 }

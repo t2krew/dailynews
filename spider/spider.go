@@ -4,6 +4,8 @@ import "sync"
 
 type Spider interface {
 	Name() string
+	IsDone() bool
+	SetDone()
 	Handler() (*Data, error)
 }
 
@@ -28,4 +30,14 @@ type Data struct {
 	Title  string              `json:"title"`
 	Spider string              `json:"spider"`
 	List   []map[string]string `json:"list"`
+}
+
+type DailyItem struct {
+	Date string `json:"date"`
+	Link string `json:"link"`
+}
+
+type ArticleItem struct {
+	Link  string `json:"link"`
+	Title string `json:"title"`
 }

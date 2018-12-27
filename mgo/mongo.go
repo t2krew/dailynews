@@ -72,7 +72,7 @@ func (c *Col) Indexs(indexs []mongo.IndexModel) (ret []string, err error) {
 	return
 }
 
-func (c *Col) FindOne(f bson.M) (result bson.M, err error) {
+func (c *Col) FindOne(f interface{}) (result bson.M, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	cur, err := c.c.Find(ctx, f)

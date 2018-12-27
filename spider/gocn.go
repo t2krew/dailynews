@@ -4,24 +4,16 @@ import (
 	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
+	"github.com/t2krew/dailynews/util"
 	"regexp"
 )
 
 const SpiderGocn = "gocn"
 
 type Gocn struct {
+	done bool
 	name string
 	root string
-}
-
-type DailyItem struct {
-	Date string `json:"date"`
-	Link string `json:"link"`
-}
-
-type ArticleItem struct {
-	Link  string `json:"link"`
-	Title string `json:"title"`
 }
 
 func init() {
@@ -38,6 +30,18 @@ func NewGocn(root string) *Gocn {
 
 func (g *Gocn) Name() string {
 	return g.name
+}
+
+func (g *Gocn) IsDone() bool {
+	now := util.Now()
+	if now.Hour() == 0 && now.Minute() == 0 {
+		g.done = false
+	}
+	return g.done
+}
+
+func (g *Gocn) SetDone() {
+	g.done = true
 }
 
 func (g *Gocn) Handler() (ret *Data, err error) {
